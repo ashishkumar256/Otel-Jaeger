@@ -1,0 +1,61 @@
+version: '3.5'
+
+services:
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - '16686:16686'
+      - '14268'
+      - '14250'
+    networks:
+      - demo-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./src/config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest 
+    #image: otel/opentelemetry-collector-contrib
+    restart: always
+    command: ['--config=/etc/otel/config.yaml', '']
+    ports:
+      - '1888:1888' 
+      - '8888:8888' 
+      - '8889:8889' 
+      - '13133:13133' 
+      - '4317:4317' 
+      - '4318:4318'
+      - '55679:55679' 
+    volumes:
+      - ./src/config/otel-collector-config.yaml:/etc/otel/config.yaml 
+    depends_on:
+      - jaeger
+    networks:
+      - demo-network 
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest-app
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - otel-collector
+    volumes:
+      - ./src:/app/src
+    networks:
+      - demo-network
+
+networks:
+  demo-network:
