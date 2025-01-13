@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+  namespace: devops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
+        app: service-b
+    spec:
+      containers:
+      - name: service-b
+        image: ashishkumar256/tmp:svc-b-6 
+        ports:
+        - containerPort: 5000
+        env:
+        - name: OTEL_ENDPOINT
+          value: otel-collector-opentelemetry-collector:4317
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-b
+  namespace: devops
+spec:
+  selector:
+    app: service-b
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
