@@ -1,4 +1,5 @@
 helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+
 helm show values jaegertracing/jaeger
 
 helm upgrade --install jaeger jaegertracing/jaeger \
@@ -8,7 +9,10 @@ helm upgrade --install jaeger jaegertracing/jaeger \
      --version 3.3.3 \
      --values jaeger.yaml
 
+
+
 helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+
 helm upgrade --install otel-collector open-telemetry/opentelemetry-collector \
      --namespace devops \
      --create-namespace \
